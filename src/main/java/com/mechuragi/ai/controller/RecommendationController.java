@@ -14,7 +14,7 @@ public class RecommendationController {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
             "service", "mechuragi-ai-service",
-            "version", "1.0.0"
+            "version", "1.0.1"
         ));
     }
 
