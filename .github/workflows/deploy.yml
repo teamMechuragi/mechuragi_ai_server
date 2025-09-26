@@ -1,0 +1,162 @@
+name: Deploy AI Service to EC2
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main , dev ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Build application
+        run: ./gradlew build -x test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Send Discord Notification - Deploy Start
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "🤖 AI 서비스 배포 시작"
+          description: |
+            **AI 추천 서비스 배포가 시작되었습니다**
+            • 커밋: `${{ github.event.head_commit.message }}`
+            • 브랜치: `${{ github.ref_name }}`
+            • 작성자: ${{ github.event.head_commit.author.name }}
+          color: 0xffaa00
+
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build application
+        run: ./gradlew build -x test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to AI Server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.AI_SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 애플리케이션 디렉토리로 이동
+            cd /home/ubuntu/app
+
+            # 최신 이미지 풀
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+
+            # 기존 컨테이너 중지 및 제거
+            docker stop mechuragi-ai-service || true
+            docker rm mechuragi-ai-service || true
+
+            # 새 컨테이너 실행
+            docker run -d \
+              -p 8081:8081 \
+              --name mechuragi-ai-service \
+              --restart unless-stopped \
+              --network app_mechuragi-network \
+              -e SPRING_PROFILES_ACTIVE=production \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_PORT=3306 \
+              -e DB_NAME=mechuragi_db \
+              -e DB_USERNAME=mechuragi_user \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
+              -e REDIS_PORT=6379 \
+              -e AWS_REGION=ap-northeast-2 \
+              -e BEDROCK_CHAT_MODEL=anthropic.claude-instant-v1 \
+              -e BEDROCK_SMART_MODEL=anthropic.claude-instant-v1 \
+              -e BEDROCK_EMBEDDING_MODEL=amazon.titan-embed-text-v1 \
+              -e MAIN_SERVICE_URL=${{ secrets.MAIN_SERVICE_URL }} \
+              ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+
+            # 애플리케이션 시작 대기
+            sleep 30
+
+            # 헬스체크
+            curl -f http://localhost:8081/actuator/health || exit 1
+
+            # 사용하지 않는 이미지 정리
+            docker image prune -f
+
+      - name: Send Discord Notification - Deploy Success
+        if: success()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: "Success"
+          title: "✅ AI 서비스 배포 성공"
+          description: |
+            **AI 추천 서비스가 성공적으로 배포되었습니다**
+            • 서버: AI Service Server:8081
+            • 배포 방식: Docker 컨테이너 배포
+            • 커밋: `${{ github.event.head_commit.message }}`
+            • 작성자: ${{ github.event.head_commit.author.name }}`
+            • 배포 시간: ${{ job.started_at }}
+          color: 0x00ff00
+
+      - name: Send Discord Notification - Deploy Failure
+        if: failure()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: "Failure"
+          title: "❌ AI 서비스 배포 실패"
+          description: |
+            **AI 추천 서비스 배포가 실패했습니다**
+            • 오류 단계: ${{ job.status }}
+            • 커밋: `${{ github.event.head_commit.message }}`
+            • 작성자: ${{ github.event.head_commit.author.name }}
+            • 로그 확인: [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          color: 0xff0000
