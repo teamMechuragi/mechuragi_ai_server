@@ -1,0 +1,1 @@
+# mechuragi_ai_service
