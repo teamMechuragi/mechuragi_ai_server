@@ -102,7 +102,7 @@ jobs:
 
             # 새 컨테이너 실행
             docker run -d \
-              -p 8081:8081 \
+              -p 8082:8082 \
               --name mechuragi-ai-service \
               --restart unless-stopped \
               --network app_mechuragi-network \
@@ -125,7 +125,7 @@ jobs:
             sleep 30
 
             # 헬스체크
-            curl -f http://localhost:8081/actuator/health || exit 1
+            curl -f http://localhost:8082/actuator/health || exit 1
 
             # 사용하지 않는 이미지 정리
             docker image prune -f
