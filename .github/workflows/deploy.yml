@@ -122,10 +122,22 @@ jobs:
               ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
 
             # 애플리케이션 시작 대기
-            sleep 30
+            sleep 45
 
-            # 헬스체크
-            curl -f http://localhost:8082/api/ai/health || exit 1
+            # 헬스체크 (최대 5번 시도)
+            for i in {1..5}; do
+              if curl -f http://localhost:8082/api/ai/health; then
+                echo "헬스체크 성공"
+                break
+              else
+                echo "헬스체크 실패 ($i/5), 10초 후 재시도..."
+                sleep 10
+                if [ $i -eq 5 ]; then
+                  echo "헬스체크 최종 실패"
+                  exit 1
+                fi
+              fi
+            done
 
             # 사용하지 않는 이미지 정리
             docker image prune -f
