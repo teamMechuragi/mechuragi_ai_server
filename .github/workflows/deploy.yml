@@ -125,7 +125,7 @@ jobs:
             sleep 30
 
             # 헬스체크
-            curl -f http://localhost:8082/actuator/health || exit 1
+            curl -f http://localhost:8082/api/ai/health || exit 1
 
             # 사용하지 않는 이미지 정리
             docker image prune -f
@@ -139,7 +139,7 @@ jobs:
           title: "✅ AI 서비스 배포 성공"
           description: |
             **AI 추천 서비스가 성공적으로 배포되었습니다**
-            • 서버: AI Service Server:8081
+            • 서버: AI Service Server:8082
             • 배포 방식: Docker 컨테이너 배포
             • 커밋: `${{ github.event.head_commit.message }}`
             • 작성자: ${{ github.event.head_commit.author.name }}`
