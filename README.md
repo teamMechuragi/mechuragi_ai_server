@@ -30,4 +30,4 @@ AWS Bedrock 기반 AI 추천 서비스
 ```
 
 ## 운영 환경
-Docker 컨테이너로 배포되며, GitHub Actions를 통한 자동 배포 지원
+Docker 컨테이너로 배포되며, GitHub Actions를 통한 자동 배포 지원# Rebuild #오후 - 인스턴스 재생성 후 이미지 재빌드
