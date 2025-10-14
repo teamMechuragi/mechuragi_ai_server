@@ -48,8 +48,8 @@ management:
 aws:
   region: ${AWS_REGION:ap-northeast-2}
   bedrock:
-    chat-model: ${BEDROCK_CHAT_MODEL:anthropic.claude-instant-v1}
-    smart-model: ${BEDROCK_SMART_MODEL:anthropic.claude-instant-v1}
+    chat-model: ${BEDROCK_CHAT_MODEL:anthropic.claude-3-haiku-20240307-v1:0}
+    smart-model: ${BEDROCK_SMART_MODEL:anthropic.claude-3-haiku-20240307-v1:0}
     embedding-model: ${BEDROCK_EMBEDDING_MODEL:amazon.titan-embed-text-v1}
 
 # Main Service Configuration for inter-service communication
