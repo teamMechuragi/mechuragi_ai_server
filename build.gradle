@@ -26,6 +26,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
     // AWS Bedrock SDK for AI functionality
     implementation platform('software.amazon.awssdk:bom:2.21.0')
     implementation 'software.amazon.awssdk:bedrock'
