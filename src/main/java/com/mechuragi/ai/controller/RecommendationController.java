@@ -3,10 +3,9 @@ package com.mechuragi.ai.controller;
 import com.mechuragi.ai.dto.FoodRecommendationRequest;
 import com.mechuragi.ai.dto.FoodRecommendationResponse;
 import com.mechuragi.ai.service.BedrockService;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +14,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
-@Slf4j
 public class RecommendationController {
+
+    private static final Logger log = LoggerFactory.getLogger(RecommendationController.class);
 
     @Autowired(required = false)
     private BedrockService bedrockService;
-
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
