@@ -62,8 +62,8 @@ public class BedrockService {
 
     private String createClaudeRequest(String prompt) throws JsonProcessingException {
         var requestBody = new ClaudeRequest();
-        requestBody.anthropicVersion = "bedrock-2023-05-31";
-        requestBody.maxTokens = 4000;
+        requestBody.anthropic_version = "bedrock-2023-05-31";
+        requestBody.max_tokens = 4000;
         requestBody.temperature = 0.7;
         requestBody.messages = new ClaudeRequest.Message[]{
             new ClaudeRequest.Message("user", prompt)
@@ -110,8 +110,8 @@ public class BedrockService {
     }
 
     private static class ClaudeRequest {
-        public String anthropicVersion;
-        public int maxTokens;
+        public String anthropic_version;
+        public int max_tokens;
         public double temperature;
         public Message[] messages;
 
