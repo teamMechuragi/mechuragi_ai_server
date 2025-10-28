@@ -91,6 +91,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Create Docker network if it doesn't exist
+            echo "Ensuring Docker network exists..."
+            sudo docker network inspect mechuragi-network >/dev/null 2>&1 || \
+              sudo docker network create mechuragi-network
+
             # Pull latest image
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
 
@@ -114,7 +119,7 @@ jobs:
               -p 8082:8082 \
               --name mechuragi-ai-service \
               --restart unless-stopped \
-              --network app_mechuragi-network \
+              --network mechuragi-network \
               -e "SPRING_PROFILES_ACTIVE=dev" \
               -e "DB_HOST=${{ secrets.DB_HOST }}" \
               -e "DB_PORT=3306" \
