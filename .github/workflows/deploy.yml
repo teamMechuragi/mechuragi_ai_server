@@ -1,7 +1,7 @@
 name: Deploy AI Service to EC2
 on:
   push:
-    branches: [ main , dev]
+    branches: [ main, dev ]
 
 jobs:
   test:
@@ -26,6 +26,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Run tests
         run: ./gradlew test
 
@@ -35,7 +38,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push'
 
     steps:
       - name: Send Discord Notification - Deploy Start
@@ -43,7 +46,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
-          title: "🤖 AI 서비스 배포 시작"
+          title: "🚀 AI 서비스 배포 시작"
           description: |
             **AI 추천 서비스 배포가 시작되었습니다**
             • 커밋: `${{ github.event.head_commit.message }}`
@@ -88,59 +91,68 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 애플리케이션 디렉토리로 이동
-            cd /home/ubuntu/app
+            # Pull latest image
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
 
-            # 최신 이미지 풀
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+            # Stop and remove all containers using port 8082
+            echo "Checking for containers using port 8082..."
+            CONTAINER_IDS=$(sudo docker ps -q --filter "publish=8082")
+            if [ -n "$CONTAINER_IDS" ]; then
+              echo "Stopping containers using port 8082: $CONTAINER_IDS"
+              sudo docker stop $CONTAINER_IDS
+              sudo docker rm $CONTAINER_IDS
+            else
+              echo "No containers using port 8082 found"
+            fi
 
-            # 기존 컨테이너 중지 및 제거
-            docker stop mechuragi-ai-service || true
-            docker rm mechuragi-ai-service || true
+            # Also clean up by name (legacy support)
+            sudo docker stop mechuragi-ai-service 2>/dev/null || true
+            sudo docker rm mechuragi-ai-service 2>/dev/null || true
 
-            # 새 컨테이너 실행
-            docker run -d \
+            # Run new container with environment variables
+            sudo docker run -d \
               -p 8082:8082 \
               --name mechuragi-ai-service \
               --restart unless-stopped \
               --network app_mechuragi-network \
-              -e SPRING_PROFILES_ACTIVE=production \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_PORT=3306 \
-              -e DB_NAME=mechuragi_db \
-              -e DB_USERNAME=mechuragi_user \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e REDIS_HOST=${{ secrets.REDIS_HOST }} \
-              -e REDIS_PORT=6379 \
-              -e AWS_REGION=ap-northeast-2 \
-              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-              -e BEDROCK_CHAT_MODEL=anthropic.claude-instant-v1 \
-              -e BEDROCK_SMART_MODEL=anthropic.claude-instant-v1 \
-              -e BEDROCK_EMBEDDING_MODEL=amazon.titan-embed-text-v1 \
-              -e MAIN_SERVICE_URL=${{ secrets.MAIN_SERVICE_URL }} \
+              -e "SPRING_PROFILES_ACTIVE=dev" \
+              -e "DB_HOST=${{ secrets.DB_HOST }}" \
+              -e "DB_PORT=3306" \
+              -e "DB_NAME=mechuragi_db" \
+              -e "DB_USERNAME=mechuragi_user" \
+              -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+              -e "REDIS_HOST=${{ secrets.REDIS_HOST }}" \
+              -e "REDIS_PORT=6379" \
+              -e "AWS_REGION=ap-northeast-2" \
+              -e "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e "BEDROCK_CHAT_MODEL=anthropic.claude-instant-v1" \
+              -e "BEDROCK_SMART_MODEL=anthropic.claude-instant-v1" \
+              -e "BEDROCK_EMBEDDING_MODEL=amazon.titan-embed-text-v1" \
+              -e "MAIN_SERVICE_URL=${{ secrets.MAIN_SERVICE_URL }}" \
               ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
 
-            # 애플리케이션 시작 대기
+            # Wait for application to start
             sleep 45
 
-            # 헬스체크 (최대 5번 시도)
+            # Health check (up to 5 attempts)
             for i in {1..5}; do
               if curl -f http://localhost:8082/api/ai/health; then
-                echo "헬스체크 성공"
+                echo "Health check passed"
                 break
               else
-                echo "헬스체크 실패 ($i/5), 10초 후 재시도..."
+                echo "Health check failed ($i/5), retrying in 10 seconds..."
                 sleep 10
                 if [ $i -eq 5 ]; then
-                  echo "헬스체크 최종 실패"
+                  echo "Health check final failure, showing logs:"
+                  sudo docker logs mechuragi-ai-service
                   exit 1
                 fi
               fi
             done
 
-            # 사용하지 않는 이미지 정리
-            docker image prune -f
+            # Clean up old images
+            sudo docker image prune -f
 
       - name: Send Discord Notification - Deploy Success
         if: success()
@@ -154,8 +166,8 @@ jobs:
             • 서버: AI Service Server:8082
             • 배포 방식: Docker 컨테이너 배포
             • 커밋: `${{ github.event.head_commit.message }}`
-            • 작성자: ${{ github.event.head_commit.author.name }}`
-            • 배포 시간: ${{ job.started_at }}
+            • 작성자: ${{ github.event.head_commit.author.name }}
+            • 브랜치: `${{ github.ref_name }}`
           color: 0x00ff00
 
       - name: Send Discord Notification - Deploy Failure
@@ -170,5 +182,6 @@ jobs:
             • 오류 단계: ${{ job.status }}
             • 커밋: `${{ github.event.head_commit.message }}`
             • 작성자: ${{ github.event.head_commit.author.name }}
+            • 브랜치: `${{ github.ref_name }}`
             • 로그 확인: [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           color: 0xff0000
