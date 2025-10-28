@@ -55,7 +55,7 @@ public class RecommendationController {
     @PostMapping("/analyze")
     public ResponseEntity<Map<String, Object>> analyze(@RequestBody Map<String, Object> request) {
         return ResponseEntity.ok(Map.of(
-            "analysis", "AI 분석 기능 개발 중...",
+            "analysis", "AI 분석 기능 개발 중...!",
             "input", request
         ));
     }
