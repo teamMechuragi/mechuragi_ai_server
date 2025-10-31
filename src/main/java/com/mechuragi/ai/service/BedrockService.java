@@ -85,9 +85,9 @@ public class BedrockService {
         } catch (Exception e) {
             log.error("Claude 응답 파싱 실패: {}", responseBody, e);
 
-            FoodRecommendationResponse errorResponse = new FoodRecommendationResponse();
-            errorResponse.setMessage("AI 응답을 처리하는 중 오류가 발생했습니다.");
-            return errorResponse;
+            return FoodRecommendationResponse.builder()
+                .message("AI 응답을 처리하는 중 오류가 발생했습니다.")
+                .build();
         }
     }
 

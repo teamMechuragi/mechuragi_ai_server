@@ -46,8 +46,9 @@ public class RecommendationController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("음식 추천 실패", e);
-            FoodRecommendationResponse errorResponse = new FoodRecommendationResponse();
-            errorResponse.setMessage("추천 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            FoodRecommendationResponse errorResponse = FoodRecommendationResponse.builder()
+                .message("추천 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.")
+                .build();
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
