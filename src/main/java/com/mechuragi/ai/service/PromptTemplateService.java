@@ -1,5 +1,6 @@
 package com.mechuragi.ai.service;
 
+import com.mechuragi.ai.dto.FoodPreferenceDto;
 import com.mechuragi.ai.dto.FoodRecommendationRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ public class PromptTemplateService {
         return switch (request.getType()) {
             case WEATHER -> generateWeatherBasedPrompt(request);
             case TIME_BASED -> generateTimeBasedPrompt(request);
+            case INGREDIENTS -> generateIngredientsBasedPrompt(request);
+            case FEELING -> generateFeelingBasedPrompt(request);
             case CONVERSATION -> generateConversationBasedPrompt(request);
         };
     }
@@ -24,9 +27,9 @@ public class PromptTemplateService {
         prompt.append("당신은 한국 음식 전문가입니다. 현재 날씨 상황과 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 현재 날씨 상황\n");
-        prompt.append("날씨: ").append(String.join(", ", request.getContext().getWeatherConditions())).append("\n\n");
+        prompt.append("날씨: ").append(String.join(", ", request.getWeatherConditions())).append("\n\n");
 
-        appendUserPreferences(prompt, request.getUserPreference());
+        appendUserPreferences(prompt, request.getPreference());
         appendResponseFormat(prompt);
 
         return prompt.toString();
@@ -38,9 +41,37 @@ public class PromptTemplateService {
         prompt.append("당신은 한국 음식 전문가입니다. 현재 시간대와 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 현재 시간대\n");
-        prompt.append("시간: ").append(request.getContext().getTimeOfDay()).append("\n\n");
+        prompt.append("시간: ").append(request.getTimeOfDay()).append("\n\n");
 
-        appendUserPreferences(prompt, request.getUserPreference());
+        appendUserPreferences(prompt, request.getPreference());
+        appendResponseFormat(prompt);
+
+        return prompt.toString();
+    }
+
+    private String generateIngredientsBasedPrompt(FoodRecommendationRequest request) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("당신은 한국 음식 전문가입니다. 사용자가 가진 재료와 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+
+        prompt.append("## 보유 재료\n");
+        prompt.append("재료: ").append(String.join(", ", request.getIngredients())).append("\n\n");
+
+        appendUserPreferences(prompt, request.getPreference());
+        appendResponseFormat(prompt);
+
+        return prompt.toString();
+    }
+
+    private String generateFeelingBasedPrompt(FoodRecommendationRequest request) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("당신은 한국 음식 전문가입니다. 사용자의 현재 기분과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+
+        prompt.append("## 현재 기분\n");
+        prompt.append("기분: ").append(request.getFeeling()).append("\n\n");
+
+        appendUserPreferences(prompt, request.getPreference());
         appendResponseFormat(prompt);
 
         return prompt.toString();
@@ -54,13 +85,13 @@ public class PromptTemplateService {
         prompt.append("## 사용자 요청\n");
         prompt.append(request.getUserMessage()).append("\n\n");
 
-        appendUserPreferences(prompt, request.getUserPreference());
+        appendUserPreferences(prompt, request.getPreference());
         appendResponseFormat(prompt);
 
         return prompt.toString();
     }
 
-    private void appendUserPreferences(StringBuilder prompt, FoodRecommendationRequest.UserPreference pref) {
+    private void appendUserPreferences(StringBuilder prompt, FoodPreferenceDto pref) {
         prompt.append("## 사용자 음식 취향\n");
         prompt.append("- 다이어트 상태: ").append(pref.getDietStatus()).append("\n");
         prompt.append("- 비건 옵션: ").append(pref.getVeganOption()).append("\n");
@@ -89,13 +120,13 @@ public class PromptTemplateService {
         prompt.append("  \"message\": \"추천 인사말\",\n");
         prompt.append("  \"recommendations\": [\n");
         prompt.append("    {\n");
+        prompt.append("      \"recommendationType\": \"WEATHER 또는 TIME_BASED 또는 INGREDIENTS 또는 FEELING 또는 CONVERSATION\",\n");
         prompt.append("      \"name\": \"음식 이름\",\n");
         prompt.append("      \"description\": \"음식 설명\",\n");
         prompt.append("      \"reason\": \"추천 이유\",\n");
         prompt.append("      \"ingredients\": \"재료들을 콤마로 구분\",\n");
         prompt.append("      \"cookingTime\": \"조리 시간\",\n");
-        prompt.append("      \"difficulty\": \"난이도\",\n");
-        prompt.append("      \"recipe\": [\"조리 단계 1\", \"조리 단계 2\", \"조리 단계 3\", \"...\"]\n");
+        prompt.append("      \"difficulty\": \"난이도\"\n");
         prompt.append("    }\n");
         prompt.append("  ],\n");
         prompt.append("  \"model\": \"").append(chatModel).append("\"\n");
