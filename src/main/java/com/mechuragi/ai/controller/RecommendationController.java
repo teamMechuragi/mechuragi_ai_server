@@ -2,7 +2,7 @@ package com.mechuragi.ai.controller;
 
 import com.mechuragi.ai.dto.FoodRecommendationRequest;
 import com.mechuragi.ai.dto.FoodRecommendationResponse;
-import com.mechuragi.ai.service.BedrockService;
+import com.mechuragi.ai.service.RecommendationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ import jakarta.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/recommend")
 public class RecommendationController {
 
     private static final Logger log = LoggerFactory.getLogger(RecommendationController.class);
 
-    @Autowired(required = false)
-    private BedrockService bedrockService;
+    @Autowired
+    private RecommendationService recommendationService;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
@@ -30,22 +30,18 @@ public class RecommendationController {
         ));
     }
 
-    @PostMapping("/recommend")
-    public ResponseEntity<FoodRecommendationResponse> recommend(@Valid @RequestBody FoodRecommendationRequest request) {
+    @PostMapping
+    public ResponseEntity<FoodRecommendationResponse> recommend(
+            @RequestHeader(value = "X-Member-Id", required = true) Long memberId,
+            @Valid @RequestBody FoodRecommendationRequest request) {
         try {
-            log.info("음식 추천 요청: {}", request.getType());
+            log.info("음식 추천 요청 - 회원: {}, 타입: {}", memberId, request.getType());
 
-            FoodRecommendationResponse response;
-            if (bedrockService != null) {
-                log.info("실제 AWS Bedrock 서비스 사용");
-                response = bedrockService.generateRecommendation(request);
-            } else {
-                throw new RuntimeException("사용 가능한 AI 서비스가 없습니다");
-            }
+            FoodRecommendationResponse response = recommendationService.generateAndSaveRecommendation(memberId, request);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("음식 추천 실패", e);
+            log.error("음식 추천 실패 - 회원: {}", memberId, e);
             FoodRecommendationResponse errorResponse = FoodRecommendationResponse.builder()
                 .message("추천 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.")
                 .build();
@@ -53,11 +49,4 @@ public class RecommendationController {
         }
     }
 
-    @PostMapping("/analyze")
-    public ResponseEntity<Map<String, Object>> analyze(@RequestBody Map<String, Object> request) {
-        return ResponseEntity.ok(Map.of(
-            "analysis", "AI 분석 기능 개발 중...!",
-            "input", request
-        ));
-    }
 }
