@@ -3,9 +3,8 @@ package com.mechuragi.ai.controller;
 import com.mechuragi.ai.dto.external.FoodRecommendationRequest;
 import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
 import com.mechuragi.ai.service.RecommendationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,21 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/recommend")
+@RequiredArgsConstructor
+@Slf4j
 public class RecommendationController {
 
-    private static final Logger log = LoggerFactory.getLogger(RecommendationController.class);
-
-    @Autowired
-    private RecommendationService recommendationService;
-
-    @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of(
-            "status", "UP",
-            "service", "mechuragi-ai-service",
-            "version", "1.0.2"
-        ));
-    }
+    private final RecommendationService recommendationService;
 
     @PostMapping
     public ResponseEntity<FoodRecommendationResponse> recommend(
