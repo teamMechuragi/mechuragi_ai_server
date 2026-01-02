@@ -36,6 +36,14 @@ management:
     db:
       enabled: true
 
+# Swagger/OpenAPI 설정
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
 # AWS Bedrock Configuration
 aws:
   region: ${AWS_REGION:ap-northeast-2}
@@ -58,11 +66,18 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
---- # 프로덕션 환경일 경우 ( 70 ~ 80 )
+--- # 프로덕션 환경일 경우
 spring:
   config:
     activate:
       on-profile: production
+
+# 프로덕션에서 Swagger 비활성화
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 logging:
   level:
