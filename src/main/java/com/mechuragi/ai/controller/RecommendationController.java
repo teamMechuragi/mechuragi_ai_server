@@ -1,7 +1,7 @@
 package com.mechuragi.ai.controller;
 
-import com.mechuragi.ai.dto.FoodRecommendationRequest;
-import com.mechuragi.ai.dto.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.external.FoodRecommendationRequest;
+import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
 import com.mechuragi.ai.service.RecommendationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

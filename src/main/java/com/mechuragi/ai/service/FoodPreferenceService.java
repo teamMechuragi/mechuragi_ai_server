@@ -1,6 +1,6 @@
 package com.mechuragi.ai.service;
 
-import com.mechuragi.ai.dto.FoodPreferenceDto;
+import com.mechuragi.ai.dto.internal.FoodPreferenceDto;
 import com.mechuragi.ai.entity.preference.FoodPreference;
 import com.mechuragi.ai.repository.DislikedFoodRepository;
 import com.mechuragi.ai.repository.FoodPreferenceRepository;

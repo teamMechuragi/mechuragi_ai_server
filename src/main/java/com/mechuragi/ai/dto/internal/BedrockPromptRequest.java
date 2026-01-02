@@ -1,4 +1,4 @@
-package com.mechuragi.ai.dto;
+package com.mechuragi.ai.dto.internal;
 
 import com.mechuragi.ai.type.RecommendationType;
 import lombok.*;
@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodRecommendationRequest {
+public class BedrockPromptRequest {
 
     private RecommendationType type;
     private FoodPreferenceDto preference;

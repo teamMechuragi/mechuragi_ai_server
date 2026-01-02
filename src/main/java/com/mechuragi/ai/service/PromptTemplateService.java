@@ -1,7 +1,7 @@
 package com.mechuragi.ai.service;
 
-import com.mechuragi.ai.dto.FoodPreferenceDto;
-import com.mechuragi.ai.dto.FoodRecommendationRequest;
+import com.mechuragi.ai.dto.internal.BedrockPromptRequest;
+import com.mechuragi.ai.dto.internal.FoodPreferenceDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ public class PromptTemplateService {
     @Value("${aws.bedrock.chat-model}")
     private String chatModel;
 
-    public String generatePrompt(FoodRecommendationRequest request) {
+    public String generatePrompt(BedrockPromptRequest request) {
         return switch (request.getType()) {
             case WEATHER -> generateWeatherBasedPrompt(request);
             case TIME_BASED -> generateTimeBasedPrompt(request);
@@ -21,7 +21,7 @@ public class PromptTemplateService {
         };
     }
 
-    private String generateWeatherBasedPrompt(FoodRecommendationRequest request) {
+    private String generateWeatherBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("당신은 한국 음식 전문가입니다. 현재 날씨 상황과 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
@@ -35,7 +35,7 @@ public class PromptTemplateService {
         return prompt.toString();
     }
 
-    private String generateTimeBasedPrompt(FoodRecommendationRequest request) {
+    private String generateTimeBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("당신은 한국 음식 전문가입니다. 현재 시간대와 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
@@ -49,7 +49,7 @@ public class PromptTemplateService {
         return prompt.toString();
     }
 
-    private String generateIngredientsBasedPrompt(FoodRecommendationRequest request) {
+    private String generateIngredientsBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("당신은 한국 음식 전문가입니다. 사용자가 가진 재료와 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
@@ -63,7 +63,7 @@ public class PromptTemplateService {
         return prompt.toString();
     }
 
-    private String generateFeelingBasedPrompt(FoodRecommendationRequest request) {
+    private String generateFeelingBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("당신은 한국 음식 전문가입니다. 사용자의 현재 기분과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
@@ -77,7 +77,7 @@ public class PromptTemplateService {
         return prompt.toString();
     }
 
-    private String generateConversationBasedPrompt(FoodRecommendationRequest request) {
+    private String generateConversationBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("당신은 친근한 한국 음식 전문가입니다. 사용자의 요청과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");

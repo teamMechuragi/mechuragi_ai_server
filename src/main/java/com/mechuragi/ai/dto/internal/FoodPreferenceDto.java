@@ -1,4 +1,4 @@
-package com.mechuragi.ai.dto;
+package com.mechuragi.ai.dto.internal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

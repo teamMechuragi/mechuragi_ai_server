@@ -1,7 +1,12 @@
 package com.mechuragi.ai.service;
 
 import com.mechuragi.ai.client.MainServiceClient;
-import com.mechuragi.ai.dto.*;
+import com.mechuragi.ai.dto.external.FoodRecommendationRequest;
+import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.external.SaveRecommendationRequest;
+import com.mechuragi.ai.dto.external.SaveRecommendationsRequest;
+import com.mechuragi.ai.dto.internal.BedrockPromptRequest;
+import com.mechuragi.ai.dto.internal.FoodPreferenceDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +27,7 @@ public class RecommendationService {
     public FoodRecommendationResponse generateAndSaveRecommendation(Long memberId, FoodRecommendationRequest request) {
         FoodPreferenceDto preference = foodPreferenceService.getActivePreference(memberId);
 
-        FoodRecommendationRequest fullRequest = FoodRecommendationRequest.builder()
+        BedrockPromptRequest promptRequest = BedrockPromptRequest.builder()
                 .type(request.getType())
                 .preference(preference)
                 .weatherConditions(request.getWeatherConditions())
@@ -32,7 +37,7 @@ public class RecommendationService {
                 .userMessage(request.getUserMessage())
                 .build();
 
-        FoodRecommendationResponse response = bedrockService.generateRecommendation(fullRequest);
+        FoodRecommendationResponse response = bedrockService.generateRecommendation(promptRequest);
 
         saveRecommendationsAsync(memberId, request.getType(), response);
 

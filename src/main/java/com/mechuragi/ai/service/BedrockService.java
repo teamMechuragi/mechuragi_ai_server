@@ -2,8 +2,8 @@ package com.mechuragi.ai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mechuragi.ai.dto.FoodRecommendationRequest;
-import com.mechuragi.ai.dto.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.internal.BedrockPromptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +35,7 @@ public class BedrockService {
     }
 
     @Cacheable(value = "foodRecommendations", key = "#request.hashCode()")
-    public FoodRecommendationResponse generateRecommendation(FoodRecommendationRequest request) {
+    public FoodRecommendationResponse generateRecommendation(BedrockPromptRequest request) {
         try {
             String prompt = promptTemplateService.generatePrompt(request);
 
