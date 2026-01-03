@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # AI Service
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mechuragi-ai-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+    restart: unless-stopped
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:-ap-northeast-2}
+        awslogs-group: /aws/mechuragi/dev/ai-service
+        awslogs-stream: ${HOSTNAME:-ai-server}
+        awslogs-create-group: "true"
