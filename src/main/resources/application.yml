@@ -16,18 +16,12 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate # db 수정안하고 검증만
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
-
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      timeout: 2000ms
 
 # Management endpoints for health checks
 management:
@@ -39,10 +33,16 @@ management:
     health:
       show-details: always
   health:
-    redis:
-      enabled: true
     db:
       enabled: true
+
+# Swagger/OpenAPI 설정
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
 
 # AWS Bedrock Configuration
 aws:
@@ -52,11 +52,11 @@ aws:
     smart-model: ${BEDROCK_SMART_MODEL:anthropic.claude-3-haiku-20240307-v1:0}
     embedding-model: ${BEDROCK_EMBEDDING_MODEL:amazon.titan-embed-text-v1}
 
-# Main Service Configuration for inter-service communication
+# 메인 서버
 main-service:
   url: ${MAIN_SERVICE_URL:http://localhost:8080}
 
-# Logging Configuration
+# 로깅
 logging:
   level:
     com.mechuragi.ai: ${LOG_LEVEL:INFO}
@@ -66,11 +66,18 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
---- # 프로덕션 환경일 경우 ( 70 ~ 80 )
+--- # 프로덕션 환경일 경우
 spring:
   config:
     activate:
       on-profile: production
+
+# 프로덕션에서 Swagger 비활성화
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 logging:
   level:
