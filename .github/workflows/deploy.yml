@@ -155,7 +155,7 @@ jobs:
 
             # Health check (up to 5 attempts)
             for i in {1..5}; do
-              if curl -f http://localhost:8082/api/ai/health; then
+              if curl -f http://localhost:8082/recommend/health; then
                 echo "Health check passed"
                 break
               else
