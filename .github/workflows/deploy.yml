@@ -78,26 +78,34 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deploy to AI Server
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: ${{ secrets.AI_SERVER_HOST }}
+          host: ${{ secrets.AI_SERVER_PRIVATE_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          proxy_host: ${{ secrets.NGINX_GATEWAY_PUBLIC_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 120s
+          command_timeout: 10m
           script: |
             # Create Docker network if it doesn't exist
             echo "Ensuring Docker network exists..."
             sudo docker network inspect mechuragi-network >/dev/null 2>&1 || \
               sudo docker network create mechuragi-network
 
-            # Pull latest image
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+            # Pull latest image with SHA tag
+            IMAGE_TAG="${{ github.sha }}"
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:$IMAGE_TAG
 
             # Stop and remove all containers using port 8082
             echo "Checking for containers using port 8082..."
@@ -114,11 +122,17 @@ jobs:
             sudo docker stop mechuragi-ai-service 2>/dev/null || true
             sudo docker rm mechuragi-ai-service 2>/dev/null || true
 
-            # Run new container with environment variables
+            # Run new container with environment variables and CloudWatch logging
             sudo docker run -d \
               -p 8082:8082 \
               --name mechuragi-ai-service \
+              --network mechuragi-network \
               --restart unless-stopped \
+              --log-driver=awslogs \
+              --log-opt awslogs-region=ap-northeast-2 \
+              --log-opt awslogs-group=/aws/mechuragi/dev/ai-service \
+              --log-opt awslogs-stream=ai-server \
+              --log-opt awslogs-create-group=true \
               -e "SPRING_PROFILES_ACTIVE=dev" \
               -e "DB_HOST=${{ secrets.DB_HOST }}" \
               -e "DB_PORT=3306" \
@@ -134,7 +148,7 @@ jobs:
               -e "BEDROCK_SMART_MODEL=anthropic.claude-3-haiku-20240307-v1:0" \
               -e "BEDROCK_EMBEDDING_MODEL=amazon.titan-embed-text-v1" \
               -e "MAIN_SERVICE_URL=${{ secrets.MAIN_SERVICE_URL }}" \
-              ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:latest
+              ${{ secrets.DOCKERHUB_USERNAME }}/mechuragi-ai-service:$IMAGE_TAG
 
             # Wait for application to start
             sleep 45
