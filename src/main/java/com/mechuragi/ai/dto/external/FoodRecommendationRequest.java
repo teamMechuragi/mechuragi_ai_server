@@ -20,4 +20,12 @@ public class FoodRecommendationRequest {
     private String feeling;
     private String userMessage;
 
+    // 사용자 취향 필드들
+    private String dietStatus;
+    private String veganOption;
+    private String spiceLevel;
+    private List<String> foodTypes;
+    private List<String> tastes;
+    private List<String> dislikedFoods;
+
 }

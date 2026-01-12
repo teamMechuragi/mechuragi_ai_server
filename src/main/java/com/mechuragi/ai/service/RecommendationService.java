@@ -20,12 +20,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RecommendationService {
 
-    private final FoodPreferenceService foodPreferenceService;
     private final BedrockService bedrockService;
     private final MainServiceClient mainServiceClient;
 
     public FoodRecommendationResponse generateAndSaveRecommendation(Long memberId, FoodRecommendationRequest request) {
-        FoodPreferenceDto preference = foodPreferenceService.getActivePreference(memberId);
+        // 프론트에서 전달받은 사용자 취향 데이터를 사용
+        FoodPreferenceDto preference = FoodPreferenceDto.builder()
+                .dietStatus(request.getDietStatus())
+                .veganOption(request.getVeganOption())
+                .spiceLevel(request.getSpiceLevel())
+                .foodTypes(request.getFoodTypes())
+                .tastes(request.getTastes())
+                .dislikedFoods(request.getDislikedFoods())
+                .build();
 
         BedrockPromptRequest promptRequest = BedrockPromptRequest.builder()
                 .type(request.getType())
