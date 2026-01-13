@@ -47,8 +47,31 @@ logging:
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
   pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+--- # 로컬 환경일 경우
+spring:
+  config:
+    activate:
+      on-profile: local
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+
+# Main Service Configuration for Local
+main-service:
+  url: http://localhost:8080
+
+# Logging Configuration for Local - All DEBUG
+logging:
+  level:
+    com.mechuragi.ai: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework: DEBUG
+    root: DEBUG
 
 --- # 프로덕션 환경일 경우 ( 70 ~ 80 )
 spring:
