@@ -1,7 +1,7 @@
 package com.mechuragi.ai.controller;
 
-import com.mechuragi.ai.dto.external.FoodRecommendationRequest;
-import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.frontend.FoodRecommendationRequest;
+import com.mechuragi.ai.dto.frontend.FoodRecommendationResponse;
 import com.mechuragi.ai.service.RecommendationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

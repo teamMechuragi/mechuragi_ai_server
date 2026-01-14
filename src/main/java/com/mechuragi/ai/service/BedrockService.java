@@ -2,8 +2,8 @@ package com.mechuragi.ai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
-import com.mechuragi.ai.dto.internal.BedrockPromptRequest;
+import com.mechuragi.ai.dto.frontend.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.bedrock.BedrockPromptRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

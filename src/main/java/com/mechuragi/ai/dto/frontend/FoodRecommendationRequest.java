@@ -1,9 +1,10 @@
-package com.mechuragi.ai.dto.external;
+package com.mechuragi.ai.dto.frontend;
 
 import com.mechuragi.ai.type.RecommendationType;
 import lombok.*;
 
 import java.util.List;
+
 // 프론트 요청 dto
 @Builder
 @Getter
@@ -13,12 +14,9 @@ public class FoodRecommendationRequest {
 
     private RecommendationType type;
 
-    // 컨텍스트 필드들
-    private List<String> weatherConditions;
-    private String timeOfDay;
-    private List<String> ingredients;
-    private String feeling;
-    private String userMessage;
+    // 컨텍스트 (type에 따른 단일 컨텍스트 값)
+    // WEATHER: ["맑음", "더움"], TIME_BASED: ["아침"], INGREDIENTS: ["계란", "김치"] ,FEELING: ["피곤함"], CONVERSATION: ["오늘 뭐 먹을까?"]
+    private List<String> context;
 
     // 사용자 취향 필드들
     private String dietStatus;

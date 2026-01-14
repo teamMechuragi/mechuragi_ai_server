@@ -1,4 +1,4 @@
-package com.mechuragi.ai.dto.external;
+package com.mechuragi.ai.dto.main;
 
 import com.mechuragi.ai.type.RecommendationType;
 import lombok.AllArgsConstructor;
