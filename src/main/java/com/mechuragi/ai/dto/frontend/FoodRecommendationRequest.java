@@ -15,7 +15,7 @@ public class FoodRecommendationRequest {
     private RecommendationType type;
 
     // 컨텍스트 (type에 따른 단일 컨텍스트 값)
-    // WEATHER: ["맑음", "더움"], TIME_BASED: ["아침"], INGREDIENTS: ["계란", "김치"] ,FEELING: ["피곤함"], CONVERSATION: ["오늘 뭐 먹을까?"]
+    // WEATHER: ["맑음", "더움"], TIME: ["아침"], INGREDIENTS: ["계란", "김치"] ,FEELING: ["피곤함"], CONVERSATION: ["오늘 뭐 먹을까?"]
     private List<String> context;
 
     // 사용자 취향 필드들

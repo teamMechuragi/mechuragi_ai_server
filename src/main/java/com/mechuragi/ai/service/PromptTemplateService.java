@@ -14,7 +14,7 @@ public class PromptTemplateService {
     public String generatePrompt(BedrockPromptRequest request) {
         return switch (request.getType()) {
             case WEATHER -> generateWeatherBasedPrompt(request);
-            case TIME_BASED -> generateTimeBasedPrompt(request);
+            case TIME -> generateTimeBasedPrompt(request);
             case INGREDIENTS -> generateIngredientsBasedPrompt(request);
             case FEELING -> generateFeelingBasedPrompt(request);
             case CONVERSATION -> generateConversationBasedPrompt(request);
@@ -120,7 +120,7 @@ public class PromptTemplateService {
         prompt.append("  \"message\": \"추천 인사말\",\n");
         prompt.append("  \"recommendations\": [\n");
         prompt.append("    {\n");
-        prompt.append("      \"recommendationType\": \"WEATHER 또는 TIME_BASED 또는 INGREDIENTS 또는 FEELING 또는 CONVERSATION\",\n");
+        prompt.append("      \"recommendationType\": \"WEATHER 또는 TIME 또는 INGREDIENTS 또는 FEELING 또는 CONVERSATION\",\n");
         prompt.append("      \"name\": \"음식 이름\",\n");
         prompt.append("      \"description\": \"음식 설명\",\n");
         prompt.append("      \"reason\": \"추천 이유\",\n");
