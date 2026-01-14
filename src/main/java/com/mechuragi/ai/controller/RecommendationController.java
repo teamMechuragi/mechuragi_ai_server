@@ -35,20 +35,20 @@ public class RecommendationController {
     @PostMapping
     @Operation(
         summary = "음식 추천 생성",
-        description = "사용자의 컨텍스트(날씨, 시간, 재료, 기분, 대화)를 기반으로 AI가 개인화된 음식을 추천합니다. " +
-                     "사용자 취향 정보는 X-Member-Id 헤더를 통해 자동으로 조회됩니다."
+        description = "사용자의 컨텍스트(날씨, 시간, 재료, 기분, 대화)와 취향 정보를 기반으로 AI가 개인화된 음식을 추천합니다. " +
+                     "JWT 토큰은 그대로 메인 서버로 전달되어 사용자 인증에 사용됩니다."
     )
     public ResponseEntity<FoodRecommendationResponse> recommend(
-            @RequestHeader(value = "X-Member-Id", required = true) Long memberId,
+            @RequestHeader(value = "Authorization", required = true) String authorization,
             @Valid @RequestBody FoodRecommendationRequest request) {
         try {
-            log.info("음식 추천 요청 - 회원: {}, 타입: {}", memberId, request.getType());
+            log.info("음식 추천 요청 - 타입: {}", request.getType());
 
-            FoodRecommendationResponse response = recommendationService.generateAndSaveRecommendation(memberId, request);
+            FoodRecommendationResponse response = recommendationService.generateAndSaveRecommendation(authorization, request);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("음식 추천 실패 - 회원: {}", memberId, e);
+            log.error("음식 추천 실패", e);
             FoodRecommendationResponse errorResponse = FoodRecommendationResponse.builder()
                 .message("추천 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.")
                 .build();

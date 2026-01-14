@@ -23,7 +23,7 @@ public class RecommendationService {
     private final BedrockService bedrockService;
     private final MainServiceClient mainServiceClient;
 
-    public FoodRecommendationResponse generateAndSaveRecommendation(Long memberId, FoodRecommendationRequest request) {
+    public FoodRecommendationResponse generateAndSaveRecommendation(String authorization, FoodRecommendationRequest request) {
         // 프론트에서 전달받은 사용자 취향 데이터를 사용
         FoodPreferenceDto preference = FoodPreferenceDto.builder()
                 .dietStatus(request.getDietStatus())
@@ -46,23 +46,22 @@ public class RecommendationService {
 
         FoodRecommendationResponse response = bedrockService.generateRecommendation(promptRequest);
 
-        saveRecommendationsAsync(memberId, request.getType(), response);
+        saveRecommendationsAsync(authorization, request.getType(), response);
 
         return response;
     }
 
     @Async
-    public void saveRecommendationsAsync(Long memberId, com.mechuragi.ai.type.RecommendationType type,
+    public void saveRecommendationsAsync(String authorization, com.mechuragi.ai.type.RecommendationType type,
                                          FoodRecommendationResponse response) {
         try {
             if (response.getRecommendations() == null || response.getRecommendations().isEmpty()) {
-                log.warn("저장할 추천 결과가 없습니다 - 회원: {}", memberId);
+                log.warn("저장할 추천 결과가 없습니다");
                 return;
             }
 
             List<SaveRecommendationRequest> saveRequests = response.getRecommendations().stream()
                     .map(rec -> SaveRecommendationRequest.builder()
-                            .memberId(memberId)
                             .recommendationType(type)
                             .name(rec.getName())
                             .description(rec.getDescription())
@@ -74,18 +73,17 @@ public class RecommendationService {
                     .collect(Collectors.toList());
 
             SaveRecommendationsRequest request = SaveRecommendationsRequest.builder()
-                    .memberId(memberId)
                     .recommendations(saveRequests)
                     .build();
 
-            mainServiceClient.saveRecommendations(request)
+            mainServiceClient.saveRecommendations(authorization, request)
                     .subscribe(
-                            result -> log.info("비동기 저장 완료 - 회원: {}", memberId),
-                            error -> log.error("비동기 저장 실패 - 회원: {}", memberId, error)
+                            result -> log.info("비동기 저장 완료"),
+                            error -> log.error("비동기 저장 실패", error)
                     );
 
         } catch (Exception e) {
-            log.error("추천 결과 비동기 저장 중 오류 - 회원: {}", memberId, e);
+            log.error("추천 결과 비동기 저장 중 오류", e);
         }
     }
 }
