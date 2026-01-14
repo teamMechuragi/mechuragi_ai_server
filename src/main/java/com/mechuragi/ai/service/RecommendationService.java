@@ -42,14 +42,15 @@ public class RecommendationService {
 
         FoodRecommendationResponse response = bedrockService.generateRecommendation(promptRequest);
 
-        saveRecommendationsAsync(authorization, request.getType(), preference, response);
+        saveRecommendationsAsync(authorization, request.getType(), request.getContext(), preference, response);
 
         return response;
     }
 
     @Async
     public void saveRecommendationsAsync(String authorization, com.mechuragi.ai.type.RecommendationType type,
-                                         FoodPreferenceRequest preference, FoodRecommendationResponse response) {
+                                         List<String> context, FoodPreferenceRequest preference,
+                                         FoodRecommendationResponse response) {
         try {
             if (response.getRecommendations() == null || response.getRecommendations().isEmpty()) {
                 log.warn("저장할 추천 결과가 없습니다");
@@ -69,6 +70,7 @@ public class RecommendationService {
                     .collect(Collectors.toList());
 
             SaveRecommendationsRequest request = SaveRecommendationsRequest.builder()
+                    .context(context)
                     .preference(preference)
                     .recommendations(saveRequests)
                     .build();

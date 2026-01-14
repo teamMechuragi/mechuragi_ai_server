@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SaveRecommendationsRequest {
 
+    private List<String> context;
     private FoodPreferenceRequest preference;
     private List<SaveRecommendationRequest> recommendations;
 }
