@@ -1,6 +1,6 @@
-package com.mechuragi.ai.dto.external;
+package com.mechuragi.ai.dto.frontend;
 
-import com.mechuragi.ai.dto.internal.FoodRecommendationDto;
+import com.mechuragi.ai.dto.bedrock.BedrockRecommendationResponse;
 import lombok.*;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public class FoodRecommendationResponse {
 
     private String message;
-    private List<FoodRecommendationDto> recommendations;
+    private List<BedrockRecommendationResponse> recommendations;
     private String model;
 
 }

@@ -1,12 +1,12 @@
 package com.mechuragi.ai.service;
 
 import com.mechuragi.ai.client.MainServiceClient;
-import com.mechuragi.ai.dto.external.FoodRecommendationRequest;
-import com.mechuragi.ai.dto.external.FoodRecommendationResponse;
-import com.mechuragi.ai.dto.external.SaveRecommendationRequest;
-import com.mechuragi.ai.dto.external.SaveRecommendationsRequest;
-import com.mechuragi.ai.dto.internal.BedrockPromptRequest;
-import com.mechuragi.ai.dto.internal.FoodPreferenceDto;
+import com.mechuragi.ai.dto.frontend.FoodRecommendationRequest;
+import com.mechuragi.ai.dto.frontend.FoodRecommendationResponse;
+import com.mechuragi.ai.dto.main.SaveRecommendationRequest;
+import com.mechuragi.ai.dto.main.SaveRecommendationsRequest;
+import com.mechuragi.ai.dto.bedrock.BedrockPromptRequest;
+import com.mechuragi.ai.dto.frontend.FoodPreferenceRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -25,7 +25,7 @@ public class RecommendationService {
 
     public FoodRecommendationResponse generateAndSaveRecommendation(String authorization, FoodRecommendationRequest request) {
         // 프론트에서 전달받은 사용자 취향 데이터를 사용
-        FoodPreferenceDto preference = FoodPreferenceDto.builder()
+        FoodPreferenceRequest preference = FoodPreferenceRequest.builder()
                 .dietStatus(request.getDietStatus())
                 .veganOption(request.getVeganOption())
                 .spiceLevel(request.getSpiceLevel())
@@ -37,23 +37,19 @@ public class RecommendationService {
         BedrockPromptRequest promptRequest = BedrockPromptRequest.builder()
                 .type(request.getType())
                 .preference(preference)
-                .weatherConditions(request.getWeatherConditions())
-                .timeOfDay(request.getTimeOfDay())
-                .ingredients(request.getIngredients())
-                .feeling(request.getFeeling())
-                .userMessage(request.getUserMessage())
+                .context(request.getContext())
                 .build();
 
         FoodRecommendationResponse response = bedrockService.generateRecommendation(promptRequest);
 
-        saveRecommendationsAsync(authorization, request.getType(), response);
+        saveRecommendationsAsync(authorization, request.getType(), preference, response);
 
         return response;
     }
 
     @Async
     public void saveRecommendationsAsync(String authorization, com.mechuragi.ai.type.RecommendationType type,
-                                         FoodRecommendationResponse response) {
+                                         FoodPreferenceRequest preference, FoodRecommendationResponse response) {
         try {
             if (response.getRecommendations() == null || response.getRecommendations().isEmpty()) {
                 log.warn("저장할 추천 결과가 없습니다");
@@ -73,6 +69,7 @@ public class RecommendationService {
                     .collect(Collectors.toList());
 
             SaveRecommendationsRequest request = SaveRecommendationsRequest.builder()
+                    .preference(preference)
                     .recommendations(saveRequests)
                     .build();
 

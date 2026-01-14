@@ -1,6 +1,6 @@
 package com.mechuragi.ai.client;
 
-import com.mechuragi.ai.dto.external.SaveRecommendationsRequest;
+import com.mechuragi.ai.dto.main.SaveRecommendationsRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

@@ -32,3 +32,19 @@ AWS Bedrock 기반 AI 추천 서비스
 ## 운영 환경
 Docker 컨테이너로 배포되며, GitHub Actions를 통한 자동 배포 지원# Rebuild #오후 - 인스턴스 재생성 후 이미지 재빌드
 # Test deploy #오후
+
+dto/
+├── frontend/     ← 프론트엔드와 통신
+│   ├── FoodRecommendationRequest.java   (요청)
+│   ├── FoodRecommendationResponse.java  (응답)
+│   └── FoodPreferenceRequest.java       (취향 정보)
+│
+├── bedrock/      ← AWS Bedrock AI와 통신
+│   └── BedrockPromptRequest.java        (프롬프트 요청)
+│
+└── main/         ← 메인 서버와 통신
+├── SaveRecommendationRequest.java   (저장 요청 - 개별)
+└── SaveRecommendationsRequest.java  (저장 요청 - 목록)
+
+
+
