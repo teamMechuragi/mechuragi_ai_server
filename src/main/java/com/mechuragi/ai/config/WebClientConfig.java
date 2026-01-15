@@ -21,12 +21,17 @@ public class WebClientConfig implements WebMvcConfigurer {
                 .build();
     }
 
-    // 로컬 테스트용 - 프론트엔드(3000 포트)에서 오는 요청을 허용하는 CORS 설정
+    // CORS 설정 - 로컬 및 프로덕션 환경 허용
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 모든 API 경로 허용
-                .allowedOrigins("http://localhost:3000") // 프론트엔드 주소 허용
+                .allowedOriginPatterns(
+                        "http://localhost:3000",
+                        "https://mechuragi.kro.kr",
+                        "https://*.mechuragi.kro.kr"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 메서드
+                .allowedHeaders("*") // 모든 헤더 허용
                 .allowCredentials(true); // 쿠키/인증정보 허용 여부
     }
 }
