@@ -32,7 +32,7 @@ public class RecommendationController {
         ));
     }
 
-    @PostMapping
+    @PostMapping("/food")
     @Operation(
         summary = "음식 추천 생성",
         description = "사용자의 컨텍스트(날씨, 시간, 재료, 기분, 대화)와 취향 정보를 기반으로 AI가 개인화된 음식을 추천합니다. " +
