@@ -24,7 +24,7 @@ public class PromptTemplateService {
     private String generateWeatherBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("당신은 한국 음식 전문가입니다. 현재 날씨 상황과 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+        prompt.append("당신은 음식 전문가입니다. 현재 날씨 상황과 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 현재 날씨 상황\n");
         prompt.append("날씨: ").append(String.join(", ", request.getContext())).append("\n\n");
@@ -38,7 +38,7 @@ public class PromptTemplateService {
     private String generateTimeBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("당신은 한국 음식 전문가입니다. 현재 시간대와 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+        prompt.append("당신은 음식 전문가입니다. 현재 시간대와 사용자의 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 현재 시간대\n");
         prompt.append("시간: ").append(String.join(", ", request.getContext())).append("\n\n");
@@ -52,7 +52,7 @@ public class PromptTemplateService {
     private String generateIngredientsBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("당신은 한국 음식 전문가입니다. 사용자가 가진 재료와 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+        prompt.append("당신은 음식 전문가입니다. 사용자가 가진 재료와 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 보유 재료\n");
         prompt.append("재료: ").append(String.join(", ", request.getContext())).append("\n\n");
@@ -66,7 +66,7 @@ public class PromptTemplateService {
     private String generateFeelingBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("당신은 한국 음식 전문가입니다. 사용자의 현재 기분과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+        prompt.append("당신은 음식 전문가입니다. 사용자의 현재 기분과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 현재 기분\n");
         prompt.append("기분: ").append(String.join(", ", request.getContext())).append("\n\n");
@@ -80,7 +80,7 @@ public class PromptTemplateService {
     private String generateConversationBasedPrompt(BedrockPromptRequest request) {
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("당신은 친근한 한국 음식 전문가입니다. 사용자의 요청과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
+        prompt.append("당신은 친근한 음식 전문가입니다. 사용자의 요청과 음식 취향을 고려하여 적절한 음식 3가지를 추천해주세요.\n\n");
 
         prompt.append("## 사용자 요청\n");
         prompt.append(String.join(", ", request.getContext())).append("\n\n");
