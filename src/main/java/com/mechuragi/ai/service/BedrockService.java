@@ -34,7 +34,7 @@ public class BedrockService {
         this.objectMapper = objectMapper;
     }
 
-    @Cacheable(value = "foodRecommendations", key = "#request.hashCode()")
+    @Cacheable(value = "foodRecommendations", key = "#request.hashCode() + '_' + T(java.lang.System).currentTimeMillis() / 600000L")
     public FoodRecommendationResponse generateRecommendation(BedrockPromptRequest request) {
         try {
             String prompt = promptTemplateService.generatePrompt(request);
@@ -63,8 +63,8 @@ public class BedrockService {
     private String createClaudeRequest(String prompt) throws JsonProcessingException {
         var requestBody = new ClaudeRequest();
         requestBody.anthropic_version = "bedrock-2023-05-31";
-        requestBody.max_tokens = 4000;
-        requestBody.temperature = 0.7;
+        requestBody.max_tokens = 1000;
+        requestBody.temperature = 0.9;
         requestBody.messages = new ClaudeRequest.Message[]{
             new ClaudeRequest.Message("user", prompt)
         };
