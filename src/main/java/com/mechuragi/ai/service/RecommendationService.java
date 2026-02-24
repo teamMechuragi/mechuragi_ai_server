@@ -63,9 +63,6 @@ public class RecommendationService {
                             .name(rec.getName())
                             .description(rec.getDescription())
                             .reason(rec.getReason())
-                            .ingredients(rec.getIngredients())
-                            .cookingTime(rec.getCookingTime())
-                            .difficulty(rec.getDifficulty())
                             .build())
                     .collect(Collectors.toList());
 
