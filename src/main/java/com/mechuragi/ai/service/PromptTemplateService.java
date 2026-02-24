@@ -26,7 +26,7 @@ public class PromptTemplateService {
         prompt.append("음식 추천 전문가입니다. 현재 날씨에 어울리는 음식 3가지를 추천해주세요.\n\n");
         prompt.append("날씨: ").append(String.join(", ", request.getContext())).append("\n\n");
         appendUserPreferences(prompt, request.getPreference());
-        appendResponseFormat(prompt);
+        appendResponseFormat(prompt, request.getType().name());
         return prompt.toString();
     }
 
@@ -35,7 +35,7 @@ public class PromptTemplateService {
         prompt.append("음식 추천 전문가입니다. 현재 시간대에 어울리는 음식 3가지를 추천해주세요.\n\n");
         prompt.append("시간대: ").append(String.join(", ", request.getContext())).append("\n\n");
         appendUserPreferences(prompt, request.getPreference());
-        appendResponseFormat(prompt);
+        appendResponseFormat(prompt, request.getType().name());
         return prompt.toString();
     }
 
@@ -44,7 +44,7 @@ public class PromptTemplateService {
         prompt.append("음식 추천 전문가입니다. 보유한 재료로 만들 수 있는 음식 3가지를 추천해주세요.\n\n");
         prompt.append("보유 재료: ").append(String.join(", ", request.getContext())).append("\n\n");
         appendUserPreferences(prompt, request.getPreference());
-        appendResponseFormat(prompt);
+        appendResponseFormat(prompt, request.getType().name());
         return prompt.toString();
     }
 
@@ -53,7 +53,7 @@ public class PromptTemplateService {
         prompt.append("음식 추천 전문가입니다. 현재 기분에 어울리는 음식 3가지를 추천해주세요.\n\n");
         prompt.append("기분: ").append(String.join(", ", request.getContext())).append("\n\n");
         appendUserPreferences(prompt, request.getPreference());
-        appendResponseFormat(prompt);
+        appendResponseFormat(prompt, request.getType().name());
         return prompt.toString();
     }
 
@@ -62,7 +62,7 @@ public class PromptTemplateService {
         prompt.append("음식 추천 전문가입니다. 사용자 요청에 맞는 음식 3가지를 추천해주세요.\n\n");
         prompt.append("요청: ").append(String.join(", ", request.getContext())).append("\n\n");
         appendUserPreferences(prompt, request.getPreference());
-        appendResponseFormat(prompt);
+        appendResponseFormat(prompt, request.getType().name());
         return prompt.toString();
     }
 
@@ -88,8 +88,8 @@ public class PromptTemplateService {
         prompt.append("\n");
     }
 
-    private void appendResponseFormat(StringBuilder prompt) {
+    private void appendResponseFormat(StringBuilder prompt, String type) {
         prompt.append("JSON만 반환. 다른 텍스트 없음.\n\n");
-        prompt.append("{\"message\":\"추천 인사말\",\"recommendations\":[{\"recommendationType\":\"TYPE\",\"name\":\"음식명\",\"description\":\"한 줄 설명\",\"reason\":\"추천 이유\"}],\"model\":\"").append(chatModel).append("\"}\n");
+        prompt.append("{\"message\":\"추천 인사말\",\"recommendations\":[{\"recommendationType\":\"").append(type).append("\",\"name\":\"음식명\",\"description\":\"한 줄 설명\",\"reason\":\"추천 이유\"}],\"model\":\"").append(chatModel).append("\"}\n");
     }
 }
