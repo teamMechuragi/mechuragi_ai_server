@@ -1,9 +1,12 @@
 package com.mechuragi.ai.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mechuragi.ai.dto.bedrock.BedrockRecommendationResponse;
 import com.mechuragi.ai.dto.frontend.FoodRecommendationResponse;
 import com.mechuragi.ai.dto.bedrock.BedrockPromptRequest;
+import com.mechuragi.ai.type.RecommendationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +16,9 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelRequest;
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelResponse;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BedrockService {
@@ -52,7 +58,8 @@ public class BedrockService {
 
             log.debug("Bedrock 응답 Body: {}", responseBody);
 
-            return parseClaudeResponse(responseBody);
+            FoodRecommendationResponse parsed = parseClaudeResponse(responseBody);
+            return applyRecommendationType(parsed, request.getType());
 
         } catch (Exception e) {
             log.error("음식 추천 생성 실패", e);
@@ -80,15 +87,35 @@ public class BedrockService {
             String jsonContent = extractJsonFromResponse(content);
             log.debug("추출된 JSON: {}", jsonContent);
 
-            return objectMapper.readValue(jsonContent, FoodRecommendationResponse.class);
+            // Claude가 recommendationType에 "CUISINE", "일식" 같은 엉뚱한 값을 넣어도
+            // 예외를 던지지 않고 null로 처리하도록 설정.
+            // (어차피 아래 applyRecommendationType()에서 올바른 값으로 덮어씀)
+            ObjectMapper lenientMapper = objectMapper.copy()
+                    .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+            return lenientMapper.readValue(jsonContent, FoodRecommendationResponse.class);
 
         } catch (Exception e) {
             log.error("Claude 응답 파싱 실패: {}", responseBody, e);
 
-            return FoodRecommendationResponse.builder()
-                .message("AI 응답을 처리하는 중 오류가 발생했습니다.")
-                .build();
+            return FoodRecommendationResponse.builder().build();
         }
+    }
+
+    private FoodRecommendationResponse applyRecommendationType(FoodRecommendationResponse response, RecommendationType type) {
+        if (response.getRecommendations() == null) return response;
+
+        List<BedrockRecommendationResponse> fixed = response.getRecommendations().stream()
+                .map(r -> BedrockRecommendationResponse.builder()
+                        .recommendationType(type)
+                        .name(r.getName())
+                        .reason(r.getReason())
+                        .build())
+                .collect(Collectors.toList());
+
+        return FoodRecommendationResponse.builder()
+                .recommendations(fixed)
+                .model(chatModel)
+                .build();
     }
 
     private String extractJsonFromResponse(String content) {

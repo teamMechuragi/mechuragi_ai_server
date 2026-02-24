@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class FoodRecommendationResponse {
 
-    private String message;
     private List<BedrockRecommendationResponse> recommendations;
     private String model;
 
