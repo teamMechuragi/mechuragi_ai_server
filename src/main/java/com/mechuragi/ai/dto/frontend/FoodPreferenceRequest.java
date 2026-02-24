@@ -12,10 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FoodPreferenceRequest {
+    private Integer numberOfDiners;
     private String dietStatus;
     private String veganOption;
     private String spiceLevel;
     private List<String> foodTypes;
     private List<String> tastes;
-    private List<String> dislikedFoods;
+    private List<String> avoidedFoods;
+    private List<String> allergies;
 }

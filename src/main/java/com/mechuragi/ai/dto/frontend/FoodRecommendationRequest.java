@@ -19,11 +19,13 @@ public class FoodRecommendationRequest {
     private List<String> context;
 
     // 사용자 취향 필드들
+    private Integer numberOfDiners;
     private String dietStatus;
     private String veganOption;
     private String spiceLevel;
     private List<String> foodTypes;
     private List<String> tastes;
-    private List<String> dislikedFoods;
+    private List<String> avoidedFoods;
+    private List<String> allergies;
 
 }

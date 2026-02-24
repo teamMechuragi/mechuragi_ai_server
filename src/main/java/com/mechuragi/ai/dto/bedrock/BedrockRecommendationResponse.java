@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
 public class BedrockRecommendationResponse {
     private RecommendationType recommendationType;
     private String name;
-    private String description;
     private String reason;
 }

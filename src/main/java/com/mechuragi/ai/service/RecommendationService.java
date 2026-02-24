@@ -26,12 +26,14 @@ public class RecommendationService {
     public FoodRecommendationResponse generateAndSaveRecommendation(String authorization, FoodRecommendationRequest request) {
         // 프론트에서 전달받은 사용자 취향 데이터를 사용
         FoodPreferenceRequest preference = FoodPreferenceRequest.builder()
+                .numberOfDiners(request.getNumberOfDiners())
                 .dietStatus(request.getDietStatus())
                 .veganOption(request.getVeganOption())
                 .spiceLevel(request.getSpiceLevel())
                 .foodTypes(request.getFoodTypes())
                 .tastes(request.getTastes())
-                .dislikedFoods(request.getDislikedFoods())
+                .avoidedFoods(request.getAvoidedFoods())
+                .allergies(request.getAllergies())
                 .build();
 
         BedrockPromptRequest promptRequest = BedrockPromptRequest.builder()
@@ -61,7 +63,6 @@ public class RecommendationService {
                     .map(rec -> SaveRecommendationRequest.builder()
                             .recommendationType(type)
                             .name(rec.getName())
-                            .description(rec.getDescription())
                             .reason(rec.getReason())
                             .build())
                     .collect(Collectors.toList());

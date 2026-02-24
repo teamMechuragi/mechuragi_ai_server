@@ -15,6 +15,5 @@ public class SaveRecommendationRequest {
 
     private RecommendationType recommendationType;
     private String name;
-    private String description;
     private String reason;
 }
