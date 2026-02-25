@@ -64,9 +64,19 @@ spring:
       port: 6379
       timeout: 2000ms
 
+server:
+  tomcat:
+    threads:
+      max: 32  # 부하 테스트용 스레드 제한 (Main Server와 동일 조건)
+
 # Nginx Gateway for Local (로컬에서는 메인 서버 직접 접근)
 nginx-gateway:
   url: http://localhost:8080
+
+# Mock 지연 설정 (부하 테스트용)
+mock:
+  bedrock-delay-ms: 3000   # Bedrock 처리 시간 시뮬레이션
+  network-delay-ms: 200    # VPC 내 네트워크 지연 시뮬레이션
 
 # CORS for Local
 cors:
