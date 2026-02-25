@@ -43,9 +43,12 @@ public class RecommendationController {
             @Valid @RequestBody FoodRecommendationRequest request) {
         try {
             log.info("음식 추천 요청 - 타입: {}", request.getType());
+            long start = System.currentTimeMillis();
 
             FoodRecommendationResponse response = recommendationService.generateAndSaveRecommendation(authorization, request);
 
+            log.info("[성능] AI 서버 추천 생성 완료: {}ms", System.currentTimeMillis() - start);
+            log.info("[성능] AI→클라이언트 응답 전송 시작");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("음식 추천 실패", e);

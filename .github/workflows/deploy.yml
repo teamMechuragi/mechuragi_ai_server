@@ -1,7 +1,7 @@
 name: Deploy AI Service to EC2
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, test/direct-legacy ]
 
 jobs:
   test:
@@ -38,7 +38,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/test/direct-legacy') && github.event_name == 'push'
 
     steps:
       - name: Send Discord Notification - Deploy Start

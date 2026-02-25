@@ -53,7 +53,10 @@ public class BedrockService {
                     .body(SdkBytes.fromUtf8String(requestBody))
                     .build();
 
+            long bedrockStart = System.currentTimeMillis();
             InvokeModelResponse response = bedrockClient.invokeModel(invokeRequest);
+            log.info("[성능] Bedrock 추천 응답 생성: {}ms", System.currentTimeMillis() - bedrockStart);
+
             String responseBody = response.body().asUtf8String();
 
             log.debug("Bedrock 응답 Body: {}", responseBody);
